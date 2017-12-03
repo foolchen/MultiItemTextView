@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="MultiItemTextView">
+    <attr format="integer" name="mitv_count"/>
+    <attr format="color" name="mitv_color"/>
+    <attr format="dimension" name="mitv_text_size"/>
+    <attr format="dimension" name="mitv_item_width"/>
+    <attr format="dimension" name="mitv_item_height"/>
+    <attr format="dimension" name="mitv_item_padding"/>
+    <attr format="dimension" name="mitv_item_padding_start"/>
+    <attr format="dimension" name="mitv_item_padding_top"/>
+    <attr format="dimension" name="mitv_item_padding_end"/>
+    <attr format="dimension" name="mitv_item_padding_bottom"/>
+    <attr format="string" name="mitv_texts"/>
+  </declare-styleable>
+</resources>
