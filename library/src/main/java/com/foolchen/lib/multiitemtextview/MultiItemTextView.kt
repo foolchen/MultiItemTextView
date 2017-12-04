@@ -26,6 +26,8 @@ open class MultiItemTextView : View {
   // item的宽高，如果未设置则根据文本变化
   private var mItemWidth = -1
   private var mItemHeight = -1
+  private var mDividerColor = Color.GRAY
+  private var mDividerWidth = 0F
 
   // 每个item的内边距
   private val mItemPadding = IntArray(4)
@@ -58,16 +60,35 @@ open class MultiItemTextView : View {
       mTextSize = ta.getDimension(R.styleable.MultiItemTextView_mitv_text_size, 24F)
       mItemWidth = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_item_width, -1)
       mItemHeight = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_item_height, -1)
+      mDividerColor = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_divider_color,
+          Color.GRAY)
+      mDividerWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_divider_width, 1F)
       val padding = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_item_padding, 0)
-      mItemPadding.fill(padding, 0, mItemPadding.size - 1)
-      mItemPadding[0] = ta.getDimensionPixelSize(
-          R.styleable.MultiItemTextView_mitv_item_padding_start, 0)
-      mItemPadding[1] = ta.getDimensionPixelSize(
-          R.styleable.MultiItemTextView_mitv_item_padding_top, 0)
-      mItemPadding[2] = ta.getDimensionPixelSize(
-          R.styleable.MultiItemTextView_mitv_item_padding_end, 0)
-      mItemPadding[3] = ta.getDimensionPixelSize(
-          R.styleable.MultiItemTextView_mitv_item_padding_bottom, 0)
+      mItemPadding.fill(padding, 0, mItemPadding.size)
+      ta.getDimensionPixelSize(
+          R.styleable.MultiItemTextView_mitv_item_padding_start, 0).let {
+        if (it != 0) {
+          mItemPadding[0] = it
+        }
+      }
+      ta.getDimensionPixelSize(
+          R.styleable.MultiItemTextView_mitv_item_padding_top, 0).let {
+        if (it != 0) {
+          mItemPadding[1] = it
+        }
+      }
+      ta.getDimensionPixelSize(
+          R.styleable.MultiItemTextView_mitv_item_padding_end, 0).let {
+        if (it != 0) {
+          mItemPadding[2] = it
+        }
+      }
+      ta.getDimensionPixelSize(
+          R.styleable.MultiItemTextView_mitv_item_padding_bottom, 0).let {
+        if (it != 0) {
+          mItemPadding[3] = it
+        }
+      }
       mText = ta.getString(R.styleable.MultiItemTextView_mitv_texts)
       ta.recycle()
     }
@@ -97,11 +118,44 @@ open class MultiItemTextView : View {
     // 绘制文本
     canvas.drawText(mText, startX, startY, mPaint)
 
+    drawItems(canvas)
+
     if (isInEditMode) {
       // 绘制中线，用于查看文本的位置
       mPaint.color = Color.GRAY
       mPaint.strokeWidth = 5F
       canvas.drawLine(0F, height / 2F, width.toFloat(), height / 2F, mPaint)
+    }
+  }
+
+  // 绘制各个条目
+  private fun drawItems(canvas: Canvas) {
+    val itemWidth = calItemWidth()
+    val top = calTop()
+    val bottom = calBottom()
+    for (i in 0 until mItemCount) {
+      val start = calStart(i, itemWidth)
+      val end = start + itemWidth
+
+      // 绘制整个条目的区域
+      mPaint.color = if (i % 2 == 0) Color.BLUE else Color.YELLOW
+      mPaint.style = Paint.Style.FILL
+      canvas.drawRect(start, top, end, bottom, mPaint)
+
+      // 绘制内容区域
+      mPaint.color = Color.RED
+      mPaint.strokeWidth = 1F
+      mPaint.style = Paint.Style.STROKE
+      canvas.drawRect(start + mItemPadding[0], top + mItemPadding[1], end - mItemPadding[2],
+          bottom - mItemPadding[3], mPaint)
+
+      if (mDividerWidth > 0) {
+        // 绘制分隔线
+        mPaint.color = mDividerColor
+        mPaint.strokeWidth = mDividerWidth
+        mPaint.style = Paint.Style.FILL
+        canvas.drawRect(end, top, end + mDividerWidth, bottom, mPaint)
+      }
     }
   }
 
@@ -130,5 +184,23 @@ open class MultiItemTextView : View {
   private fun getDisplayFontSize(): Int {
     val fm = mPaint.fontMetricsInt
     return fm.bottom - fm.top
+  }
+
+  // 计算每个条目的宽度
+  private fun calItemWidth(): Float {
+    return (width - paddingLeft - paddingRight - mDividerWidth * (mItemCount - 2)) / mItemCount.toFloat()
+  }
+
+  // 根据当前条目的位置，计算其起始位置
+  private fun calStart(index: Int, itemWidth: Float): Float {
+    return paddingLeft + index * (itemWidth + mDividerWidth)
+  }
+
+  private fun calTop(): Float {
+    return paddingTop.toFloat()
+  }
+
+  private fun calBottom(): Float {
+    return (height - paddingBottom).toFloat()
   }
 }

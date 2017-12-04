@@ -19,9 +19,12 @@
       />
 
   <com.foolchen.lib.multiitemtextview.MultiItemTextView
-      android:layout_width="match_parent"
+      android:layout_width="300dp"
       android:layout_height="100dp"
       android:background="@color/colorAccent"
+      app:mitv_count="5"
+      app:mitv_divider_width="3dp"
+      app:mitv_item_padding="10dp"
       app:mitv_text_size="20dp"
       app:mitv_texts="测试用的文本1234567890,测试用的文本0987654321"
       />
