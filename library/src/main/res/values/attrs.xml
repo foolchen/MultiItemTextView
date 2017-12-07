@@ -12,6 +12,7 @@
     <attr format="dimension" name="mitv_item_padding_end"/>
     <attr format="dimension" name="mitv_item_padding_bottom"/>
     <attr format="dimension" name="mitv_divider_width"/>
+    <attr format="boolean" name="mitv_divider_equally"/>
     <attr format="color" name="mitv_divider_color"/>
     <attr format="string" name="mitv_texts"/>
   </declare-styleable>
