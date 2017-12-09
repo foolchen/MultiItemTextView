@@ -16,6 +16,9 @@ import java.util.*
  * 16:04
  */
 open class MultiItemTextView : View {
+  private val GRAVITY_NONE = 0
+  private val GRAVITY_CENTER_VERTICAL = 1
+  private val GRAVITY_CENTER = 2
 
   // 要显示的item的数量，如果为-1则按照传入的item的数量显示
   private var mItemCount = -1
@@ -31,6 +34,10 @@ open class MultiItemTextView : View {
   private var mDividerEqually = false
   private var mDividerColor = Color.GRAY
   private var mDividerWidth = 0F
+  private var mTopDividerEnable = false
+  private var mBottomDividerEnable = false
+  private var mMiddleDividerEnable = false
+  private var mGravity = 0
 
   // 每个item的内边距
   private val mItemPadding = IntArray(4)
@@ -68,6 +75,13 @@ open class MultiItemTextView : View {
       mDividerColor = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_divider_color,
           Color.GRAY)
       mDividerWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_divider_width, 1F)
+      mTopDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_top_divider_enable,
+          false)
+      mBottomDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_bottom_divider_enable,
+          false)
+      mMiddleDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_middle_divider_enable,
+          false)
+      mGravity = ta.getInt(R.styleable.MultiItemTextView_mitv_gravity, 0)
       val padding = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_item_padding, 0)
       mItemPadding.fill(padding, 0, mItemPadding.size)
       ta.getDimensionPixelSize(
@@ -121,10 +135,10 @@ open class MultiItemTextView : View {
     mPaint.color = mTextColor
 
     // 计算绘制文本的起始位置
-    val startX = width / 2F - mBound.width() / 2F
+    //val startX = width / 2F - mBound.width() / 2F
     // 绘制文本时从文本的左下角开始，故如果要使文本居中，则开始位置需要+fontSize * 0.5f
     // 而此处绘制时不应该包含字体本身的边距，故使用Rect来获取高度
-    val startY = height / 2F + mBound.height() / 2F
+    //val startY = height / 2F + mBound.height() / 2F
     // 绘制文本
     //canvas.drawText(mText, startX, startY, mPaint)
 
@@ -140,31 +154,70 @@ open class MultiItemTextView : View {
 
   // 绘制各个条目
   private fun drawItems(canvas: Canvas) {
-    val itemWidth = calItemWidth()
+    val itemWidth = calItemWidth(width.toFloat())
     val top = calTop()
     val bottom = calBottom()
+    val displayFontSize = getDisplayFontSize()
     for (i in 0 until mItemCount) {
       val start = calStart(i, itemWidth)
       val end = start + itemWidth
 
-      // 绘制整个条目的区域
-      mPaint.color = if (i % 2 == 0) Color.BLUE else Color.YELLOW
-      mPaint.style = Paint.Style.FILL
-      canvas.drawRect(start, top, end, bottom, mPaint)
+      val drawableStart = start + mItemPadding[0]
+      val drawableTop = top + mItemPadding[1]
+      val drawableEnd = end - mItemPadding[2]
+      val drawableBottom = bottom - mItemPadding[3]
+      if (isInEditMode) {
+        // 绘制整个条目的区域
+        mPaint.color = if (i % 2 == 0) Color.BLUE else Color.YELLOW
+        mPaint.style = Paint.Style.FILL
+        canvas.drawRect(start, top, end, bottom, mPaint)
 
-      // 绘制内容区域
-      mPaint.color = Color.RED
-      mPaint.strokeWidth = 1F
-      mPaint.style = Paint.Style.STROKE
-      canvas.drawRect(start + mItemPadding[0], top + mItemPadding[1], end - mItemPadding[2],
-          bottom - mItemPadding[3], mPaint)
+        // 绘制内容区域
+        mPaint.color = Color.RED
+        mPaint.strokeWidth = 1F
+        mPaint.style = Paint.Style.STROKE
+        canvas.drawRect(drawableStart, drawableTop, drawableEnd, drawableBottom, mPaint)
+      }
+
+      // 为了防止文本被覆盖，在绘制背景后绘制文本
+      val texts = mDividedItems[i]
+      val size = texts.size
+      var offsetY = 0F
+      if (mGravity == GRAVITY_CENTER_VERTICAL || mGravity == GRAVITY_CENTER) {
+        offsetY = (drawableBottom - drawableTop - displayFontSize * size) / 2F
+        if (offsetY < 0F) {
+          offsetY = 0F
+        }
+      }
+      for (textIndex in 0 until size) {
+        val text = texts[textIndex]
+        var startY = drawableTop + textIndex * displayFontSize + mTextSize// 由于文本从左下角开始绘制，故其开始位置
+        var offsetX = 0F
+        if (mGravity == GRAVITY_CENTER) {
+          mPaint.getTextBounds(text, 0, text.length, mBound)
+          offsetX = (drawableEnd - drawableStart - mBound.width()) / 2F
+        }
+        mPaint.color = mTextColor
+        mPaint.textSize = mTextSize
+        mPaint.strokeWidth = 0F
+        mPaint.style = Paint.Style.FILL_AND_STROKE
+        canvas.drawText(text, drawableStart + offsetX, startY + offsetY, mPaint)
+      }
 
       if (mDividerWidth > 0) {
-        // 绘制分隔线
         mPaint.color = mDividerColor
         mPaint.strokeWidth = mDividerWidth
         mPaint.style = Paint.Style.FILL
-        canvas.drawRect(end, top, end + mDividerWidth, bottom, mPaint)
+        if (mTopDividerEnable) {
+          canvas.drawRect(0F, 0F, width.toFloat(), top, mPaint)
+        }
+        if (mBottomDividerEnable) {
+          canvas.drawRect(0F, bottom, width.toFloat(), bottom + mDividerWidth, mPaint)
+        }
+        if (mMiddleDividerEnable) {
+          // 绘制分隔线
+          canvas.drawRect(end, top, end + mDividerWidth, bottom, mPaint)
+        }
       }
     }
   }
@@ -213,37 +266,45 @@ open class MultiItemTextView : View {
   }
 
   // 计算每个条目的宽度
-  private fun calItemWidth(): Float {
-    return (width - paddingLeft - paddingRight - mDividerWidth * (mItemCount - 2)) / mItemCount.toFloat()
+  private fun calItemWidth(width: Float): Float {
+    return if (mItemWidth == -1F) {
+      (width - paddingLeft - paddingRight - if (mMiddleDividerEnable) mDividerWidth * (mItemCount - 2) else 0F) / mItemCount.toFloat()
+    } else {
+      mItemWidth
+    }
   }
 
   // 根据当前条目的位置，计算其起始位置
   private fun calStart(index: Int, itemWidth: Float): Float {
-    return paddingLeft + index * (itemWidth + mDividerWidth)
+    return paddingLeft + index * (itemWidth + if (mMiddleDividerEnable) mDividerWidth else 0F)
   }
 
   private fun calTop(): Float {
-    return paddingTop.toFloat()
+    return paddingTop.toFloat() + if (mTopDividerEnable) mDividerWidth else 0F
   }
 
   private fun calBottom(): Float {
-    return (height - paddingBottom).toFloat()
+    return (height - paddingBottom).toFloat() - if (mBottomDividerEnable) mDividerWidth else 0F
   }
 
   /** 计算条目的高度（在未指定高度的情况下） */
   private fun calItemHeight(): Float {
-    var lines = 0
-    mDividedItems
-        .asSequence()
-        .filter { it.size > lines }
-        .forEach { lines = it.size }
-    return paddingTop + paddingBottom + lines * getDisplayFontSize().toFloat()
+    return if (mItemHeight == -1F) {
+      var lines = 0
+      mDividedItems
+          .asSequence()
+          .filter { it.size > lines }
+          .forEach { lines = it.size }
+      paddingTop + paddingBottom + mItemPadding[1] + mItemPadding[3] + lines * getDisplayFontSize().toFloat()
+    } else {
+      mItemHeight
+    }
   }
 
   /** 分割各个item */
   private fun divideItems(width: Float) {
     // 首先需要计算可绘制的最大宽度
-    val drawableWidth = (width - paddingLeft - paddingRight - mItemPadding[0] - mItemPadding[2]) / mItemCount.toFloat()
+    val drawableWidth = calItemWidth(width) - mItemPadding[0] - mItemPadding[2]
     if (drawableWidth > 0) {
       // 需要保证每一行的宽度都小于drawableWidth
       mItems.mapTo(mDividedItems) { divideItem(drawableWidth, it) }
@@ -256,7 +317,7 @@ open class MultiItemTextView : View {
     var text = item
     var end = text.length
     while (true) {
-      mPaint.getTextBounds(item, 0, end, mBound)
+      mPaint.getTextBounds(text, 0, end, mBound)
       if (mBound.width() <= drawableWidth) {
         // 宽度小于可绘制宽度，则添加到列表中
         texts.add(text.substring(0, end))
