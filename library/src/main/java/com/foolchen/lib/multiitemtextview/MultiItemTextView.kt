@@ -63,11 +63,11 @@ open class MultiItemTextView : View {
     init(context, attrs)
   }
 
-  fun setItems(vararg items: String) {
-    setItems(items.asList())
+  fun setTexts(vararg items: String) {
+    setTexts(items.asList())
   }
 
-  fun setItems(items: List<String>) {
+  fun setTexts(items: List<String>) {
     mItems.clear()
     mItems.addAll(items)
     mShadowItems.clear()

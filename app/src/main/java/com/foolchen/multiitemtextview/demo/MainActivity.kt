@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity() {
     setContentView(R.layout.activity_main)
 
     mitv.postDelayed({
-      mitv.setItems("测试用文本1", "1234测试用长文本2", "测试用长文本333333333333333333333333", "测试用文本4")
+      mitv.setTexts("测试用文本1", "1234测试用长文本2", "测试用长文本333333333333333333333333", "测试用文本4")
 
     }, 1000)
 
