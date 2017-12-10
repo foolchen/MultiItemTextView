@@ -19,13 +19,14 @@
       />
 
   <com.foolchen.lib.multiitemtextview.MultiItemTextView
+      android:id="@+id/mitv"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/colorAccent"
-      app:mitv_count="5"
-      app:mitv_divider_width="10dp"
+      app:mitv_bottom_divider_enable="true"
+      app:mitv_count="7"
+      app:mitv_divider_width="1dp"
       app:mitv_gravity="center_vertical"
-      app:mitv_item_height="100dp"
       app:mitv_item_padding="10dp"
       app:mitv_middle_divider_enable="true"
       app:mitv_text_size="20dp"

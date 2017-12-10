@@ -7,7 +7,6 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
-import java.util.*
 
 /**
  * 可以显示多个项目的TextView
@@ -46,6 +45,7 @@ open class MultiItemTextView : View {
   private val mPaint = Paint()
 
   private val mItems = ArrayList<String>()
+  private val mShadowItems = ArrayList<String>()
   // 分割后的字符串，用于绘制多行文本
   private val mDividedItems = ArrayList<List<String>>()
 
@@ -61,6 +61,46 @@ open class MultiItemTextView : View {
   constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs,
       defStyleAttr) {
     init(context, attrs)
+  }
+
+  fun setItems(vararg items: String) {
+    setItems(items.asList())
+  }
+
+  fun setItems(items: List<String>) {
+    mItems.clear()
+    mItems.addAll(items)
+    mShadowItems.clear()
+    mShadowItems.addAll(mItems)
+    ensureItems()
+    requestLayout()
+    invalidate()
+  }
+
+  fun getItems(): List<String> {
+    return mItems
+  }
+
+  fun setItemCount(itemCount: Int) {
+    mItemCount = itemCount
+    requestLayout()
+    invalidate()
+  }
+
+  fun getItemCount(): Int {
+    return mItemCount
+  }
+
+  /** 设置文本大小，单位为px */
+  fun setTextSize(textSize: Float) {
+    mTextSize = textSize
+    mPaint.textSize = mTextSize
+    requestLayout()
+    invalidate()
+  }
+
+  fun getTextSize(): Float {
+    return mTextSize
   }
 
   private fun init(context: Context?, attrs: AttributeSet?) {
@@ -111,8 +151,11 @@ open class MultiItemTextView : View {
       val text = ta.getString(R.styleable.MultiItemTextView_mitv_texts)
       text?.let {
         val items = text.split("|")
-        mItemCount = items.size
-        mItems.addAll(items)
+        if (mItemCount < items.size) {
+          mItemCount = items.size
+        }
+        mShadowItems.addAll(items)
+        ensureItems()
       }
       ta.recycle()
     }
@@ -122,6 +165,13 @@ open class MultiItemTextView : View {
     mPaint.textSize = mTextSize
     //mPaint.getTextBounds(mText, 0, mText.length, mBound)
 
+  }
+
+  /**该方法用于保证要绘制的条目与设置的条目数量相同*/
+  private fun ensureItems() {
+    while (mShadowItems.size < mItemCount) {
+      mShadowItems.add("")
+    }
   }
 
   override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -191,7 +241,7 @@ open class MultiItemTextView : View {
       }
       for (textIndex in 0 until size) {
         val text = texts[textIndex]
-        var startY = drawableTop + textIndex * displayFontSize + mTextSize// 由于文本从左下角开始绘制，故其开始位置
+        val startY = drawableTop + textIndex * displayFontSize + mTextSize// 由于文本从左下角开始绘制，故其开始位置
         var offsetX = 0F
         if (mGravity == GRAVITY_CENTER) {
           mPaint.getTextBounds(text, 0, text.length, mBound)
@@ -303,11 +353,13 @@ open class MultiItemTextView : View {
 
   /** 分割各个item */
   private fun divideItems(width: Float) {
+    // 每次重新分割item前都将已经分割的清空
+    mDividedItems.clear()
     // 首先需要计算可绘制的最大宽度
     val drawableWidth = calItemWidth(width) - mItemPadding[0] - mItemPadding[2]
     if (drawableWidth > 0) {
       // 需要保证每一行的宽度都小于drawableWidth
-      mItems.mapTo(mDividedItems) { divideItem(drawableWidth, it) }
+      mShadowItems.mapTo(mDividedItems) { divideItem(drawableWidth, it) }
     }
   }
 
