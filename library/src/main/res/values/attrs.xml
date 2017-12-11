@@ -25,6 +25,6 @@
       <enum name="center_vertical" value="1"/>
       <enum name="center" value="2"/>
     </attr>
-    <attr format="dimension" name="mitv_ref_width"/>
+    <attr format="dimension" name="mitv_ref_item_width"/>
   </declare-styleable>
 </resources>

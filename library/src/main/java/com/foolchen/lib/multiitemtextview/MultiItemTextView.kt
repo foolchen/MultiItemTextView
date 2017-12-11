@@ -52,7 +52,8 @@ open class MultiItemTextView : View {
   private val mShadowItems = ArrayList<String>()
   // 分割后的字符串，用于绘制多行文本
   private val mDividedItems = ArrayList<List<String>>()
-
+  // 该列表中的元素仅用于计算高度（mRefWidth!=-1F时）
+  private val mRefDividedItems = ArrayList<List<String>>()
 
   constructor(context: Context?) : super(context) {
     init(context, null)
@@ -116,6 +117,7 @@ open class MultiItemTextView : View {
       mTextSize = ta.getDimension(R.styleable.MultiItemTextView_mitv_text_size, 24F)
       mItemWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_item_width, -1F)
       mItemHeight = ta.getDimension(R.styleable.MultiItemTextView_mitv_item_height, -1F)
+      mRefWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_ref_item_width, -1F)
       mDividerColor = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_divider_color,
           Color.GRAY)
       mDividerWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_divider_width, 1F)
@@ -266,9 +268,9 @@ open class MultiItemTextView : View {
         mPaint.color = mDividerColor
         mPaint.strokeWidth = mDividerWidth
         mPaint.style = Paint.Style.FILL
-         if (mStartDividerEnable) {
-           canvas.drawRect(0F, 0F, mDividerWidth, height.toFloat(), mPaint)
-         }
+        if (mStartDividerEnable) {
+          canvas.drawRect(0F, 0F, mDividerWidth, height.toFloat(), mPaint)
+        }
         if (mTopDividerEnable) {
           canvas.drawRect(0F, 0F, width.toFloat(), top, mPaint)
         }
@@ -355,11 +357,11 @@ open class MultiItemTextView : View {
   private fun calItemHeight(): Float {
     return if (mItemHeight == -1F) {
       var lines = 0
-      mDividedItems
+      (if (mRefWidth == -1F) mDividedItems else mRefDividedItems)
           .asSequence()
           .filter { it.size > lines }
           .forEach { lines = it.size }
-      paddingTop + paddingBottom + mItemPadding[1] + mItemPadding[3] + lines * getDisplayFontSize().toFloat()
+      paddingTop + paddingBottom + mItemPadding[1] + mItemPadding[3] + lines * getDisplayFontSize().toFloat() + (if (mTopDividerEnable) mDividerWidth else 0F) + (if (mBottomDividerEnable) mDividerWidth else 0F)
     } else {
       mItemHeight
     }
@@ -370,10 +372,17 @@ open class MultiItemTextView : View {
     // 每次重新分割item前都将已经分割的清空
     mDividedItems.clear()
     // 首先需要计算可绘制的最大宽度
+
     val drawableWidth = calItemWidth(width) - mItemPadding[0] - mItemPadding[2]
+
     if (drawableWidth > 0) {
       // 需要保证每一行的宽度都小于drawableWidth
       mShadowItems.mapTo(mDividedItems) { divideItem(drawableWidth, it) }
+      if (mRefWidth != -1F) {
+        mShadowItems.mapTo(mRefDividedItems) {
+          divideItem(mRefWidth - paddingLeft - paddingRight - mItemPadding[0] - mItemPadding[2], it)
+        }
+      }
     }
   }
 
