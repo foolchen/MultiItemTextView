@@ -318,7 +318,7 @@ open class MultiItemTextView : View {
   // 计算每个条目的宽度
   private fun calItemWidth(width: Float): Float {
     return if (mItemWidth == -1F) {
-      (width - paddingLeft - paddingRight - if (mMiddleDividerEnable) mDividerWidth * (mItemCount - 2) else 0F) / mItemCount.toFloat()
+      (width - paddingLeft - paddingRight - if (mMiddleDividerEnable) mDividerWidth * (mItemCount - 1) else 0F) / mItemCount.toFloat()
     } else {
       mItemWidth
     }
