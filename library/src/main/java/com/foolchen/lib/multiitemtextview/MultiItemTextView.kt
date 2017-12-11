@@ -29,11 +29,15 @@ open class MultiItemTextView : View {
   // item的宽高，如果未设置则根据文本变化
   private var mItemWidth = -1F
   private var mItemHeight = -1F
+  // 宽度的参考值，在设置了该值后，计算高度时会有限参考该值；否则会根据View的实际宽高来计算
+  private var mRefWidth = -1F
   // 是否根据条目数量平分宽度
   private var mDividerEqually = false
   private var mDividerColor = Color.GRAY
   private var mDividerWidth = 0F
+  private var mStartDividerEnable = false
   private var mTopDividerEnable = false
+  private var mEndDividerEnable = false
   private var mBottomDividerEnable = false
   private var mMiddleDividerEnable = false
   private var mGravity = 0
@@ -115,7 +119,11 @@ open class MultiItemTextView : View {
       mDividerColor = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_divider_color,
           Color.GRAY)
       mDividerWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_divider_width, 1F)
+      mStartDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_start_divider_enable,
+          false)
       mTopDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_top_divider_enable,
+          false)
+      mEndDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_end_divider_enable,
           false)
       mBottomDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_bottom_divider_enable,
           false)
@@ -258,8 +266,14 @@ open class MultiItemTextView : View {
         mPaint.color = mDividerColor
         mPaint.strokeWidth = mDividerWidth
         mPaint.style = Paint.Style.FILL
+         if (mStartDividerEnable) {
+           canvas.drawRect(0F, 0F, mDividerWidth, height.toFloat(), mPaint)
+         }
         if (mTopDividerEnable) {
           canvas.drawRect(0F, 0F, width.toFloat(), top, mPaint)
+        }
+        if (mEndDividerEnable) {
+          canvas.drawRect(width - mDividerWidth, 0F, width.toFloat(), height.toFloat(), mPaint)
         }
         if (mBottomDividerEnable) {
           canvas.drawRect(0F, bottom, width.toFloat(), bottom + mDividerWidth, mPaint)
@@ -318,7 +332,7 @@ open class MultiItemTextView : View {
   // 计算每个条目的宽度
   private fun calItemWidth(width: Float): Float {
     return if (mItemWidth == -1F) {
-      (width - paddingLeft - paddingRight - if (mMiddleDividerEnable) mDividerWidth * (mItemCount - 1) else 0F) / mItemCount.toFloat()
+      (width - paddingLeft - paddingRight - (if (mMiddleDividerEnable) mDividerWidth * (mItemCount - 1) else 0F) - (if (mStartDividerEnable) mDividerWidth else 0F) - (if (mEndDividerEnable) mDividerWidth else 0F)) / mItemCount.toFloat()
     } else {
       mItemWidth
     }
@@ -326,7 +340,7 @@ open class MultiItemTextView : View {
 
   // 根据当前条目的位置，计算其起始位置
   private fun calStart(index: Int, itemWidth: Float): Float {
-    return paddingLeft + index * (itemWidth + if (mMiddleDividerEnable) mDividerWidth else 0F)
+    return paddingLeft + index * (itemWidth + if (mMiddleDividerEnable) mDividerWidth else 0F) + if (mStartDividerEnable) mDividerWidth else 0F
   }
 
   private fun calTop(): Float {

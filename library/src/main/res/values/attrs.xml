@@ -12,7 +12,9 @@
     <attr format="dimension" name="mitv_item_padding_end"/>
     <attr format="dimension" name="mitv_item_padding_bottom"/>
     <attr format="dimension" name="mitv_divider_width"/>
+    <attr format="boolean" name="mitv_start_divider_enable"/>
     <attr format="boolean" name="mitv_top_divider_enable"/>
+    <attr format="boolean" name="mitv_end_divider_enable"/>
     <attr format="boolean" name="mitv_bottom_divider_enable"/>
     <attr format="boolean" name="mitv_middle_divider_enable"/>
     <attr format="boolean" name="mitv_divider_equally"/>
@@ -23,5 +25,6 @@
       <enum name="center_vertical" value="1"/>
       <enum name="center" value="2"/>
     </attr>
+    <attr format="dimension" name="mitv_ref_width"/>
   </declare-styleable>
 </resources>
