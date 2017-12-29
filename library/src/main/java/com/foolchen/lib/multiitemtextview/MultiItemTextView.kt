@@ -104,9 +104,71 @@ open class MultiItemTextView : View {
     invalidate()
   }
 
-  fun getTextSize(): Float {
-    return mTextSize
+  fun getTextSize() = mTextSize
+
+  /** 设置item宽度 */
+  fun setItemWidth(width: Float) {
+    mItemWidth = width
+    requestLayout()
+    invalidate()
   }
+
+  fun getItemWidth() = mItemWidth
+
+  fun setItemHeight(height: Float) {
+    mItemHeight = height
+    requestLayout()
+    invalidate()
+  }
+
+  fun getItemHeight() = mItemHeight
+
+  fun setRefWidth(width: Float) {
+    mRefWidth = width
+    requestLayout()
+    invalidate()
+  }
+
+  fun setDividerColor(color: Int) {
+    mDividerColor = color
+    invalidate()
+  }
+
+  fun getDividerColor() = mDividerColor
+
+  fun setDivideWidth(width: Float) {
+    mDividerWidth = width
+    requestLayout()
+    invalidate()
+  }
+
+  fun setDividerEnable(start: Boolean, top: Boolean, end: Boolean, bottom: Boolean,
+      middle: Boolean) {
+    mStartDividerEnable = start
+    mTopDividerEnable = top
+    mEndDividerEnable = end
+    mBottomDividerEnable = bottom
+    mMiddleDividerEnable = middle
+    requestLayout()
+    invalidate()
+  }
+
+  fun setGravity(gravity: Int) {
+    mGravity = gravity
+    invalidate()
+  }
+
+  fun getGravity() = mGravity
+
+  fun setItemPadding(start: Int, top: Int, end: Int, bottom: Int) {
+    mItemPadding[0] = start
+    mItemPadding[1] = top
+    mItemPadding[2] = end
+    mItemPadding[3] = bottom
+    requestLayout()
+    invalidate()
+  }
+
 
   private fun init(context: Context?, attrs: AttributeSet?) {
     if (context != null && attrs != null) {
