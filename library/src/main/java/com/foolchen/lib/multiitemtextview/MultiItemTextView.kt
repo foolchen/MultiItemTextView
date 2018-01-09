@@ -180,7 +180,7 @@ open class MultiItemTextView : View {
       mItemWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_item_width, -1F)
       mItemHeight = ta.getDimension(R.styleable.MultiItemTextView_mitv_item_height, -1F)
       mRefWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_ref_item_width, -1F)
-      mDividerColor = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_divider_color,
+      mDividerColor = ta.getColor(R.styleable.MultiItemTextView_mitv_divider_color,
           Color.GRAY)
       mDividerWidth = ta.getDimension(R.styleable.MultiItemTextView_mitv_divider_width, 1F)
       mStartDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_start_divider_enable,
