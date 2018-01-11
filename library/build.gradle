@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply from: '../dokka.gradle'
+apply from: '../maven_push.gradle'
 
 android {
   compileSdkVersion rootProject.ext.compile_sdk_version
@@ -20,6 +20,15 @@ android {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  sourceSets {
+    main {
+      java {
+        include '**/*.java'
+        include '**/*.kt'
+      }
     }
   }
 }
