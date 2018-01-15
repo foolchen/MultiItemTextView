@@ -18,6 +18,7 @@
     <attr format="boolean" name="mitv_bottom_divider_enable"/>
     <attr format="boolean" name="mitv_middle_divider_enable"/>
     <attr format="boolean" name="mitv_divider_equally"/>
+    <attr format="boolean" name="mitv_width_contain_divider"/>
     <attr format="color" name="mitv_divider_color"/>
     <attr format="string" name="mitv_texts"/>
     <attr format="enum" name="mitv_gravity">
