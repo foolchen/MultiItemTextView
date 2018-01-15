@@ -41,6 +41,7 @@ open class MultiItemTextView : View {
   private var mBottomDividerEnable = false
   private var mMiddleDividerEnable = false
   private var mGravity = 0
+  private var mItemWidthContainDivider = false
 
   // 每个item的内边距
   private val mItemPadding = IntArray(4)
@@ -194,6 +195,8 @@ open class MultiItemTextView : View {
       mMiddleDividerEnable = ta.getBoolean(R.styleable.MultiItemTextView_mitv_middle_divider_enable,
           false)
       mGravity = ta.getInt(R.styleable.MultiItemTextView_mitv_gravity, 0)
+      mItemWidthContainDivider = ta.getBoolean(R.styleable.MultiItemTextView_mitv_width_contain_divider,
+          false)
       val padding = ta.getDimensionPixelSize(R.styleable.MultiItemTextView_mitv_item_padding, 0)
       mItemPadding.fill(padding, 0, mItemPadding.size)
       ta.getDimensionPixelSize(
@@ -404,7 +407,12 @@ open class MultiItemTextView : View {
 
   // 根据当前条目的位置，计算其起始位置
   private fun calStart(index: Int, itemWidth: Float): Float {
-    return paddingLeft + index * (itemWidth + if (mMiddleDividerEnable) mDividerWidth else 0F) + if (mStartDividerEnable) mDividerWidth else 0F
+    //在设置的itemWidth包含divider时，计算起始位置时就不需要包含分割线宽度
+    if (!mItemWidthContainDivider) {
+      return paddingLeft + index * (itemWidth + if (mMiddleDividerEnable) mDividerWidth else 0F) + if (mStartDividerEnable) mDividerWidth else 0F
+    } else {
+      return paddingLeft + index * itemWidth
+    }
   }
 
   private fun calTop(): Float {
